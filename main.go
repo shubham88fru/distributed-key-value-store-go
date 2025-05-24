@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	bolt "go.etcd.io/bbolt"
+	"github.com/shubham88fru/distributed-key-value-store-go/db"
 )
 
 var (
@@ -24,19 +24,27 @@ func parseFlags() {
 func main() {
 	parseFlags()
 
-	db, err := bolt.Open(*dbLocation, 0600, nil)
-
+	db, close, err := db.NewDatabase(*dbLocation)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to open database: %v", err)
 	}
-	defer db.Close()
+	defer close()
 
 	http.HandleFunc("/get", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("GET request received")
+		r.ParseForm()
+		key := r.FormValue("key")
+		value, err := db.GetKey(key)
+
+		fmt.Fprintf(w, "Value is = %q, error = %v", value, err)
 	})
 
 	http.HandleFunc("/set", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("SET request received")
+		r.ParseForm()
+		key := r.FormValue("key")
+		value := []byte(r.FormValue("value"))
+		err := db.SetKey(key, value)
+
+		fmt.Fprintf(w, "error = %v", err)
 	})
 
 	log.Fatal(http.ListenAndServe(*httpAddr, nil))
