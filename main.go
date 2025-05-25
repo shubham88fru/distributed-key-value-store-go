@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	dbLocation = flag.String("db-location", "", "Path to the bolt db")
-	httpAddr   = flag.String("http-addr", "localhost:8080", "Host and port for the HTTP server")
+	dbLocation  = flag.String("db-location", "", "Path to the bolt db")
+	httpAddr    = flag.String("http-addr", "localhost:8080", "Host and port for the HTTP server")
+	shardConfig = flag.String("shard-config", "shard-config.toml", "Path to the (static) shard config file")
 )
 
 func parseFlags() {
