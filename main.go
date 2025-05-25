@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/shubham88fru/distributed-key-value-store-go/db"
+	"github.com/shubham88fru/distributed-key-value-store-go/web"
 )
 
 var (
@@ -30,22 +30,10 @@ func main() {
 	}
 	defer close()
 
-	http.HandleFunc("/get", func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		key := r.FormValue("key")
-		value, err := db.GetKey(key)
+	server := web.NewServer(db)
 
-		fmt.Fprintf(w, "Value is = %q, error = %v", value, err)
-	})
-
-	http.HandleFunc("/set", func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		key := r.FormValue("key")
-		value := []byte(r.FormValue("value"))
-		err := db.SetKey(key, value)
-
-		fmt.Fprintf(w, "error = %v", err)
-	})
+	http.HandleFunc("/get", server.GetHandler)
+	http.HandleFunc("/set", server.SetHandler)
 
 	log.Fatal(http.ListenAndServe(*httpAddr, nil))
 }

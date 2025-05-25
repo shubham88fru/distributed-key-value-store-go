@@ -8,18 +8,18 @@ import (
 var defaultBucket = []byte("default")
 
 // wrapper around the bolt.DB
-type database struct {
+type Database struct {
 	db *bolt.DB
 }
 
-func NewDatabase(dbPath string) (*database, func() error, error) {
+func NewDatabase(dbPath string) (*Database, func() error, error) {
 	boltDB, err := bolt.Open(dbPath, 0600, nil)
 
 	if err != nil {
 		return nil, nil, err
 	}
 
-	dDB := &database{boltDB}
+	dDB := &Database{boltDB}
 
 	if err := dDB.createDefaultBucket(); err != nil {
 		boltDB.Close()
@@ -29,7 +29,7 @@ func NewDatabase(dbPath string) (*database, func() error, error) {
 	return dDB, boltDB.Close, nil
 }
 
-func (d *database) createDefaultBucket() error {
+func (d *Database) createDefaultBucket() error {
 	return d.db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(defaultBucket))
 		return err
@@ -37,7 +37,7 @@ func (d *database) createDefaultBucket() error {
 }
 
 // set key in the default bucket
-func (d *database) SetKey(key string, value []byte) error {
+func (d *Database) SetKey(key string, value []byte) error {
 	return d.db.Update(func(tx *bolt.Tx) error {
 		bucket, err := tx.CreateBucketIfNotExists([]byte(defaultBucket))
 		if err != nil {
@@ -49,7 +49,7 @@ func (d *database) SetKey(key string, value []byte) error {
 }
 
 // get key from the default bucket
-func (d *database) GetKey(key string) ([]byte, error) {
+func (d *Database) GetKey(key string) ([]byte, error) {
 	var value []byte
 	err := d.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(defaultBucket))
