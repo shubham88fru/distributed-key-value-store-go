@@ -49,7 +49,7 @@ func main() {
 		log.Fatalf("Shard %s not found in config", *shard)
 	}
 
-	println("Total shards: ", shards, " Shard index: ", shardIdx)
+	log.Println("Total shards: ", shards, " Shard index: ", shardIdx)
 
 	db, close, err := db.NewDatabase(*dbLocation)
 	if err != nil {
@@ -57,7 +57,7 @@ func main() {
 	}
 	defer close()
 
-	server := web.NewServer(db)
+	server := web.NewServer(db, shardIdx, shards)
 
 	http.HandleFunc("/get", server.GetHandler)
 	http.HandleFunc("/set", server.SetHandler)
