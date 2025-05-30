@@ -39,7 +39,9 @@ func main() {
 
 	var shards int = len(c.Shards)
 	var shardIdx int = -1
+	var addresses = make(map[int]string)
 	for _, s := range c.Shards {
+		addresses[s.Idx] = s.Address
 		if s.Name == *shard {
 			shardIdx = s.Idx
 		}
@@ -57,7 +59,7 @@ func main() {
 	}
 	defer close()
 
-	server := web.NewServer(db, shardIdx, shards)
+	server := web.NewServer(db, shardIdx, shards, addresses)
 
 	http.HandleFunc("/get", server.GetHandler)
 	http.HandleFunc("/set", server.SetHandler)
