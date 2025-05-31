@@ -5,5 +5,12 @@ This project was helpful for me in practically learning distributed system conce
 
 ### Sample requests
 
+```bash
+# Get a key
 curl -Lkv 'http://localhost:8081/get?key=a'
+```
+
+```bash
+# Set a key
 curl -Lkv 'http://localhost:8081/set?key=a&value=58'
+```
