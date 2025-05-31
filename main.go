@@ -37,21 +37,13 @@ func main() {
 		log.Fatal("Failed to parse shard config file")
 	}
 
-	var shards int = len(c.Shards)
-	var shardIdx int = -1
-	var addresses = make(map[int]string)
-	for _, s := range c.Shards {
-		addresses[s.Idx] = s.Address
-		if s.Name == *shard {
-			shardIdx = s.Idx
-		}
+	shards, err := config.ParseShards(c.Shards, *shard)
+
+	if err != nil {
+		log.Fatalf("Failed to parse shard config: %v", err)
 	}
 
-	if shardIdx == -1 {
-		log.Fatalf("Shard %s not found in config", *shard)
-	}
-
-	log.Println("Total shards: ", shards, " Shard index: ", shardIdx)
+	log.Println("Total shards: ", shards.Count, " Shard index: ", shards.CurrIdx)
 
 	db, close, err := db.NewDatabase(*dbLocation)
 	if err != nil {
@@ -59,7 +51,7 @@ func main() {
 	}
 	defer close()
 
-	server := web.NewServer(db, shardIdx, shards, addresses)
+	server := web.NewServer(db, shards)
 
 	http.HandleFunc("/get", server.GetHandler)
 	http.HandleFunc("/set", server.SetHandler)
