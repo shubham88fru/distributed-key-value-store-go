@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/BurntSushi/toml"
 	"github.com/shubham88fru/distributed-key-value-store-go/config"
 	"github.com/shubham88fru/distributed-key-value-store-go/db"
 	"github.com/shubham88fru/distributed-key-value-store-go/web"
@@ -32,9 +31,11 @@ func parseFlags() {
 func main() {
 	parseFlags()
 
-	var c config.Config
-	if _, err := toml.DecodeFile(*shardConfig, &c); err != nil {
-		log.Fatal("Failed to parse shard config file")
+	var c *config.Config
+	c, err := config.ParseConfigFile(*shardConfig)
+
+	if err != nil {
+		log.Fatalf("Failed to parse shard config file: %v", err)
 	}
 
 	shards, err := config.ParseShards(c.Shards, *shard)

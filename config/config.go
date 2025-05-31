@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"hash/fnv"
+
+	"github.com/BurntSushi/toml"
 )
 
 type Shard struct {
@@ -19,6 +21,15 @@ type Shards struct {
 	Count   int            `json:"count"`
 	CurrIdx int            `json:"curr_idx"`
 	Addrs   map[int]string `json:"addrs"`
+}
+
+func ParseConfigFile(configFile string) (*Config, error) {
+	var c Config
+	if _, err := toml.DecodeFile(configFile, &c); err != nil {
+		return &Config{}, err
+	}
+
+	return &c, nil
 }
 
 func ParseShards(shards []Shard, currShardName string) (*Shards, error) {
